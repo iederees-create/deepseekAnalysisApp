@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAVERSUS - Iridology Analysis</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .app-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #camera-view {
+            width: 100%;
+            display: block;
+            background-color: #eee;
+        }
+
+        .capture-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .capture-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .capture-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview-container {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        .analysis-result {
+            display: none;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .result-section {
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .protocol-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .protocol-title {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .eye-selection {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .eye-option {
+            padding: 10px 20px;
+            background-color: var(--light-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .eye-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            .app-section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">RAVERSUS</div>
+            <div class="tagline">Advanced Iridology Analysis with AI</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="app-section">
+            <h2>Eye Analysis</h2>
+            <p>Take a clear photo of your eye for iridology analysis. Ensure good lighting and focus.</p>
+            
+            <div class="eye-selection">
+                <div class="eye-option active" data-eye="left">Left Eye</div>
+                <div class="eye-option" data-eye="right">Right Eye</div>
+            </div>
+            
+            <div class="camera-container">
+                <video id="camera-view" autoplay playsinline></video>
+            </div>
+            
+            <button id="capture-btn" class="capture-btn">Capture Photo</button>
+            
+            <div class="preview-container">
+                <img id="image-preview" alt="Captured eye photo">
+                <div class="action-buttons">
+                    <button id="retake-btn" class="btn btn-secondary">Retake</button>
+                    <button id="analyze-btn" class="btn btn-primary">Analyze</button>
+                </div>
+            </div>
+            
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your eye. This may take a moment...</p>
+            </div>
+        </section>
+        
+        <section class="app-section">
+            <h2>Analysis Results</h2>
+            <div id="analysis-result" class="analysis-result">
+                <div class="result-section">
+                    <div class="result-title">Eye Characteristics</div>
+                    <div id="eye-characteristics"></div>
+                </div>
+                
+                <div class="result-section">
+                    <div class="result-title">Potential Health Indicators</div>
+                    <div id="health-indicators"></div>
+                </div>
+                
+                <div class="result-section">
+                    <div class="result-title">Recommended Protocols</div>
+                    <div id="recommended-protocols"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 RAVERSUS. All rights reserved.</p>
+            <p>This app provides general health information and is not a substitute for professional medical advice.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const cameraView = document.getElementById('camera-view');
+            const captureBtn = document.getElementById('capture-btn');
+            const previewContainer = document.querySelector('.preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const retakeBtn = document.getElementById('retake-btn');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const loadingElement = document.querySelector('.loading');
+            const analysisResult = document.getElementById('analysis-result');
+            const eyeCharacteristics = document.getElementById('eye-characteristics');
+            const healthIndicators = document.getElementById('health-indicators');
+            const recommendedProtocols = document.getElementById('recommended-protocols');
+            const eyeOptions = document.querySelectorAll('.eye-option');
+            
+            let currentStream = null;
+            let selectedEye = 'left';
+            
+            // Eye selection
+            eyeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    eyeOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedEye = this.dataset.eye;
+                });
+            });
+            
+            // Start camera
+            function startCamera() {
+                if (currentStream) {
+                    return; // Camera is already running
+                }
+                
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+                    .then(function(stream) {
+                        currentStream = stream;
+                        cameraView.srcObject = stream;
+                        captureBtn.disabled = false;
+                    })
+                    .catch(function(err) {
+                        console.error("Error accessing camera: ", err);
+                        alert("Could not access the camera. Please ensure you've granted camera permissions.");
+                        captureBtn.disabled = true;
+                    });
+            }
+            
+            // Capture photo
+            captureBtn.addEventListener('click', function() {
+                if (!currentStream) return;
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = cameraView.videoWidth;
+                canvas.height = cameraView.videoHeight;
+                const context = canvas.getContext('2d');
+                
+                // Draw the current frame from the camera on the canvas
+                context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas to image and display in preview
+                imagePreview.src = canvas.toDataURL('image/jpeg');
+                previewContainer.style.display = 'block';
+                cameraView.style.display = 'none';
+                captureBtn.style.display = 'none';
+                
+                // Stop camera stream
+                stopCamera();
+            });
+            
+            // Retake photo
+            retakeBtn.addEventListener('click', function() {
+                previewContainer.style.display = 'none';
+                cameraView.style.display = 'block';
+                captureBtn.style.display = 'block';
+                startCamera();
+            });
+            
+            // Analyze photo
+            analyzeBtn.addEventListener('click', function() {
+                previewContainer.style.display = 'none';
+                loadingElement.style.display = 'block';
+                
+                // Simulate analysis delay (in a real app, this would be an API call)
+                setTimeout(function() {
+                    loadingElement.style.display = 'none';
+                    analyzeImage(imagePreview.src);
+                    analysisResult.style.display = 'block';
+                    
+                    // Scroll to results
+                    analysisResult.scrollIntoView({ behavior: 'smooth' });
+                }, 3000);
+            });
+            
+            // Stop camera stream
+            function stopCamera() {
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                    currentStream = null;
+                }
+            }
+            
+            // Analyze the captured image (simulated)
+            function analyzeImage(imageData) {
+                // In a real application, this would send the image to a backend API
+                // for analysis using computer vision and AI models
+                
+                // Simulated analysis results based on iridology principles
+                const characteristics = [
+                    "Dense fiber structure indicating good constitutional strength",
+                    "Minor lymphatic tophi visible in the outer ring",
+                    "Slight pigment variation in the pancreatic zone",
+                    "Clear collarette with mild scalloping",
+                    "Moderate radials in the brain zone"
+                ];
+                
+                const indicators = [
+                    "Potential lymphatic congestion",
+                    "Mild pancreatic stress indicators",
+                    "Possible need for nervous system support",
+                    "Moderate oxidative stress markers",
+                    "Good digestive system vitality"
+                ];
+                
+                const protocols = [
+                    {
+                        title: "Lymphatic Support Protocol",
+                        description: "Daily dry brushing, increased water intake, and lymphatic-supportive herbs like cleavers and red root."
+                    },
+                    {
+                        title: "Nervous System Calming",
+                        description: "Magnesium supplementation, adaptogenic herbs (ashwagandha, rhodiola), and stress-reduction techniques."
+                    },
+                    {
+                        title: "Antioxidant Boost",
+                        description: "Increase intake of colorful berries, green tea, and consider supplements like vitamin C, E, and selenium."
+                    },
+                    {
+                        title: "Pancreatic Support",
+                        description: "Bitter herbs before meals (gentian, dandelion), chromium supplementation, and blood sugar balancing diet."
+                    }
+                ];
+                
+                // Display results
+                eyeCharacteristics.innerHTML = characteristics.map(item => `<p>• ${item}</p>`).join('');
+                healthIndicators.innerHTML = indicators.map(item => `<p>• ${item}</p>`).join('');
+                
+                recommendedProtocols.innerHTML = protocols.map(protocol => `
+                    <div class="protocol-card">
+                        <div class="protocol-title">${protocol.title}</div>
+                        <div class="protocol-description">${protocol.description}</div>
+                    </div>
+                `).join('');
+            }
+            
+            // Initialize camera when page loads
+            startCamera();
+            
+            // Clean up camera when page is unloaded
+            window.addEventListener('beforeunload', function() {
+                stopCamera();
+            });
+        });
+    </script>
+</body>
+</html>
